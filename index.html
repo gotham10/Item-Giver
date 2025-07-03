@@ -6,19 +6,116 @@
     <title>Item Giver</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #121212; color: #E0E0E0; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .container { background-color: #1E1E1E; padding: 40px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); width: 100%; max-width: 400px; border: 1px solid #333; }
-        h1 { color: #FFFFFF; text-align: center; margin-bottom: 30px; }
-        .form-group { margin-bottom: 20px; position: relative; }
-        label { display: block; margin-bottom: 8px; font-weight: 500; color: #A0A0A0; }
-        input { width: 100%; padding: 12px; background-color: #252525; border: 1px solid #444; border-radius: 8px; color: #E0E0E0; font-size: 16px; box-sizing: border-box; transition: border-color 0.3s, box-shadow 0.3s; }
-        input:focus { outline: none; border-color: #5E5DF0; box-shadow: 0 0 0 3px rgba(94, 93, 240, 0.3); }
-        button { width: 100%; padding: 15px; background: linear-gradient(90deg, #5E5DF0, #8A5DF0); border: none; border-radius: 8px; color: #FFFFFF; font-size: 18px; font-weight: 700; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
-        button:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(94, 93, 240, 0.4); }
-        .status { text-align: center; margin-top: 20px; color: #777; height: 20px; font-weight: 500; }
-        .autocomplete-items { position: absolute; border: 1px solid #444; border-top: none; z-index: 99; top: 100%; left: 0; right: 0; max-height: 150px; overflow-y: auto; background-color: #252525; border-radius: 0 0 8px 8px; }
-        .autocomplete-items div { padding: 10px; cursor: pointer; color: #A0A0A0; }
-        .autocomplete-items div:hover { background-color: #333; color: #E0E0E0; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #000000;
+            color: #E0E0E0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 15px;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: #1A1A1A;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+            width: 100%;
+            max-width: 420px;
+            border: 1px solid #282828;
+            box-sizing: border-box;
+        }
+        h1 {
+            color: #FFFFFF;
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 700;
+        }
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #A0A0A0;
+            font-size: 14px;
+        }
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            background-color: #2C2C2C;
+            border: 1px solid #444;
+            border-radius: 8px;
+            color: #E0E0E0;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        input:focus {
+            outline: none;
+            border-color: #888;
+            box-shadow: 0 0 0 3px rgba(136, 136, 136, 0.2);
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            background-color: #333333;
+            border: 1px solid #555;
+            border-radius: 8px;
+            color: #FFFFFF;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            background-color: #444444;
+        }
+        .status {
+            text-align: center;
+            margin-top: 20px;
+            color: #777;
+            height: 20px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        .autocomplete-items {
+            position: absolute;
+            border: 1px solid #444;
+            border-top: none;
+            z-index: 99;
+            top: 100%;
+            left: 0;
+            right: 0;
+            max-height: 150px;
+            overflow-y: auto;
+            background-color: #2C2C2C;
+            border-radius: 0 0 8px 8px;
+        }
+        .autocomplete-items div {
+            padding: 12px 15px;
+            cursor: pointer;
+            color: #A0A0A0;
+        }
+        .autocomplete-items div:hover {
+            background-color: #3f3f3f;
+            color: #E0E0E0;
+        }
+        @media (max-width: 480px) {
+            .container {
+                padding: 25px;
+            }
+            h1 {
+                margin-bottom: 25px;
+                font-size: 24px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -74,7 +171,11 @@
                 autocompleteList.removeChild(autocompleteList.firstChild);
             }
         }
-        document.addEventListener('click', function (e) { closeAllLists(); });
+        document.addEventListener('click', function (e) {
+            if (e.target !== itemIdInput) {
+                closeAllLists();
+            }
+        });
 
         const form = document.getElementById('item-form');
         const statusDiv = document.getElementById('status');
