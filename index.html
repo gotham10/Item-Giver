@@ -26,10 +26,6 @@
         <h1>Item Giver</h1>
         <form id="item-form">
             <div class="form-group">
-                <label for="userId">Your Roblox User ID</label>
-                <input type="text" id="userId" placeholder="Find it on your Roblox profile URL" required>
-            </div>
-            <div class="form-group">
                 <label for="itemId">Item ID</label>
                 <input type="text" id="itemId" placeholder="e.g., Diamond Sword" required autocomplete="off">
                  <div class="autocomplete-items" id="autocomplete-list"></div>
@@ -58,9 +54,6 @@
             const val = this.value;
             if (!val) return false;
             let count = 0;
-            const list = document.createElement('DIV');
-            list.setAttribute('id', this.id + 'autocomplete-list');
-            this.parentNode.appendChild(list);
             for (let i = 0; i < allItems.length; i++) {
                 if (allItems[i].substr(0, val.length).toUpperCase() == val.toUpperCase() && count < 5) {
                     const itemDiv = document.createElement('DIV');
@@ -87,7 +80,6 @@
         const statusDiv = document.getElementById('status');
         form.addEventListener('submit', async (event) => {
             event.preventDefault();
-            const userId = document.getElementById('userId').value;
             const itemId = document.getElementById('itemId').value;
             const index = document.getElementById('index').value;
             const stack = document.getElementById('stack').value;
@@ -96,7 +88,7 @@
                 const response = await fetch('/give-item', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ userId, itemId, index, stack }),
+                    body: JSON.stringify({ itemId, index, stack }),
                 });
                 if (response.ok) {
                     statusDiv.style.color = '#4CAF50';
