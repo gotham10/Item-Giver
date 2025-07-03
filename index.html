@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Item Giver</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #121212; color: #E0E0E0; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .container { background-color: #1E1E1E; padding: 40px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); width: 100%; max-width: 400px; border: 1px solid #333; }
+        h1 { color: #FFFFFF; text-align: center; margin-bottom: 30px; }
+        .form-group { margin-bottom: 20px; position: relative; }
+        label { display: block; margin-bottom: 8px; font-weight: 500; color: #A0A0A0; }
+        input { width: 100%; padding: 12px; background-color: #252525; border: 1px solid #444; border-radius: 8px; color: #E0E0E0; font-size: 16px; box-sizing: border-box; transition: border-color 0.3s, box-shadow 0.3s; }
+        input:focus { outline: none; border-color: #5E5DF0; box-shadow: 0 0 0 3px rgba(94, 93, 240, 0.3); }
+        button { width: 100%; padding: 15px; background: linear-gradient(90deg, #5E5DF0, #8A5DF0); border: none; border-radius: 8px; color: #FFFFFF; font-size: 18px; font-weight: 700; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
+        button:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(94, 93, 240, 0.4); }
+        .status { text-align: center; margin-top: 20px; color: #777; height: 20px; font-weight: 500; }
+        .autocomplete-items { position: absolute; border: 1px solid #444; border-top: none; z-index: 99; top: 100%; left: 0; right: 0; max-height: 150px; overflow-y: auto; background-color: #252525; border-radius: 0 0 8px 8px; }
+        .autocomplete-items div { padding: 10px; cursor: pointer; color: #A0A0A0; }
+        .autocomplete-items div:hover { background-color: #333; color: #E0E0E0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Item Giver</h1>
+        <form id="item-form">
+            <div class="form-group">
+                <label for="userId">Your Roblox User ID</label>
+                <input type="text" id="userId" placeholder="Find it on your Roblox profile URL" required>
+            </div>
+            <div class="form-group">
+                <label for="itemId">Item ID</label>
+                <input type="text" id="itemId" placeholder="e.g., Diamond Sword" required autocomplete="off">
+                 <div class="autocomplete-items" id="autocomplete-list"></div>
+            </div>
+            <div class="form-group">
+                <label for="index">Index (Optional)</label>
+                <input type="text" id="index" placeholder="First available slot">
+            </div>
+            <div class="form-group">
+                <label for="stack">Stack (Optional)</label>
+                <input type="text" id="stack" placeholder="e.g., 1">
+            </div>
+            <button type="submit">Give Item</button>
+        </form>
+        <div id="status" class="status"></div>
+    </div>
+    <script>
+        let allItems = [];
+        const itemIdInput = document.getElementById('itemId');
+        const autocompleteList = document.getElementById('autocomplete-list');
+
+        fetch('/get-all-items').then(res => res.json()).then(data => { allItems = data; });
+
+        itemIdInput.addEventListener('input', function() {
+            closeAllLists();
+            const val = this.value;
+            if (!val) return false;
+            let count = 0;
+            const list = document.createElement('DIV');
+            list.setAttribute('id', this.id + 'autocomplete-list');
+            this.parentNode.appendChild(list);
+            for (let i = 0; i < allItems.length; i++) {
+                if (allItems[i].substr(0, val.length).toUpperCase() == val.toUpperCase() && count < 5) {
+                    const itemDiv = document.createElement('DIV');
+                    itemDiv.innerHTML = "<strong>" + allItems[i].substr(0, val.length) + "</strong>";
+                    itemDiv.innerHTML += allItems[i].substr(val.length);
+                    itemDiv.addEventListener('click', function() {
+                        itemIdInput.value = allItems[i];
+                        closeAllLists();
+                    });
+                    autocompleteList.appendChild(itemDiv);
+                    count++;
+                }
+            }
+        });
+
+        function closeAllLists() {
+            while (autocompleteList.firstChild) {
+                autocompleteList.removeChild(autocompleteList.firstChild);
+            }
+        }
+        document.addEventListener('click', function (e) { closeAllLists(); });
+
+        const form = document.getElementById('item-form');
+        const statusDiv = document.getElementById('status');
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const userId = document.getElementById('userId').value;
+            const itemId = document.getElementById('itemId').value;
+            const index = document.getElementById('index').value;
+            const stack = document.getElementById('stack').value;
+            statusDiv.textContent = 'Sending...';
+            try {
+                const response = await fetch('/give-item', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId, itemId, index, stack }),
+                });
+                if (response.ok) {
+                    statusDiv.style.color = '#4CAF50';
+                    statusDiv.textContent = 'Item sent successfully!';
+                } else {
+                    statusDiv.style.color = '#F44336';
+                    statusDiv.textContent = 'Failed to send item.';
+                }
+            } catch (error) {
+                statusDiv.style.color = '#F44336';
+                statusDiv.textContent = 'Error: Could not connect to server.';
+            }
+            setTimeout(() => { statusDiv.textContent = ''; }, 3000);
+        });
+    </script>
+</body>
+</html>
