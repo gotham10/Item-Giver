@@ -5,36 +5,35 @@ import json
 app = Flask(__name__)
 CORS(app)
 
-pending_items = {}
+item_to_give = None
 item_list = []
 
 try:
     with open('items.json', 'r') as f:
         item_list = json.load(f)
 except FileNotFoundError:
-    print("Warning: items.json not found. Autocomplete will not work.")
+    pass
 
 @app.route('/give-item', methods=['POST'])
 def handle_give_item():
+    global item_to_give
     data = request.get_json()
-    if not data or not data.get('itemId') or not data.get('userId'):
-        return jsonify({"message": "itemId and userId are required"}), 400
-    
-    user_id = str(data['userId'])
-    item_data = {
-        "Id": data.get('itemId'),
-        "Index": data.get('index'),
-        "Stack": data.get('stack')
-    }
-    pending_items[user_id] = item_data
-    return jsonify({"message": "Item queued for user " + user_id}), 200
+    if data and data.get('itemId'):
+        item_to_give = {
+            "Id": data.get('itemId'),
+            "Index": data.get('index'),
+            "Stack": data.get('stack')
+        }
+        return jsonify({"message": "Item queued"}), 200
+    return jsonify({"message": "Invalid data"}), 400
 
-@app.route('/get-item/<user_id>', methods=['GET'])
-def handle_get_item(user_id):
-    user_id_str = str(user_id)
-    if user_id_str in pending_items:
-        item = pending_items.pop(user_id_str)
-        return jsonify(item)
+@app.route('/get-item', methods=['GET'])
+def handle_get_item():
+    global item_to_give
+    if item_to_give:
+        response = jsonify(item_to_give)
+        item_to_give = None
+        return response
     return jsonify(None)
 
 @app.route('/get-all-items', methods=['GET'])
